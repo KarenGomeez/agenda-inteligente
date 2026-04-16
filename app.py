@@ -11,12 +11,17 @@ create_tables()
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = get_user(request.form["username"], request.form["password"])
+        user = get_user(
+            request.form["username"],
+            request.form["password"]
+        )
 
         if user:
             session["user_id"] = user[0]
             return redirect("/")
-    
+        else:
+            return "Usuario o contraseña incorrectos"
+
     return render_template("login.html")
 
 
