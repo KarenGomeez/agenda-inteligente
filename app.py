@@ -24,6 +24,9 @@ def home():
     filter_type = request.args.get("filter")
     tasks = get_tasks()
 
+    # ✅ categorías dinámicas
+    categories = list(set([t[3] for t in tasks if t[3]]))
+
     total = len(tasks)
     completed = len([t for t in tasks if t[7] == "completada"])
     pending = len([t for t in tasks if t[7] == "pendiente"])
@@ -49,7 +52,8 @@ def home():
         completed=completed,
         pending=pending,
         urgent=urgent,
-        progress=progress
+        progress=progress,
+        categories=categories  # ✅ coma agregada
     )
 
 
@@ -102,7 +106,7 @@ def edit(task_id):
     return render_template("edit.html", task=task)
 
 
-# 📊 CHART (DASHBOARD PRO)
+# 📊 CHART
 @app.route("/chart")
 def chart():
     tasks = get_tasks()
@@ -130,14 +134,8 @@ def chart():
     """
 
 
-# 🚀 START (solo para local)
+# 🚀 START
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-
-# 🚀 START (SOLO UNA VEZ)
-if __name__ == "__main__":
-    create_tables()
-    app.run(debug=True)
