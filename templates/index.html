@@ -55,6 +55,7 @@ body {
     height: 10px;
     background: linear-gradient(90deg, #3b82f6, #22c55e);
     border-radius: 10px;
+    transition: width 0.5s ease; /* 🔥 animación */
 }
 
 /* FORM */
@@ -104,6 +105,12 @@ button:hover {
     font-weight: bold;
 }
 
+/* 🔥 tarea completada */
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
 .meta {
     font-size: 13px;
     color: #94a3b8;
@@ -112,8 +119,8 @@ button:hover {
 /* PRIORIDAD */
 .urgente { border-left: 4px solid red; }
 .alta { border-left: 4px solid orange; }
-.media { border-left: 4px solid blue; }
-.baja { border-left: 4px solid green; }
+.media { border-left: 4px solid #3b82f6; }
+.baja { border-left: 4px solid #22c55e; }
 
 .actions a {
     margin-left: 10px;
@@ -136,14 +143,17 @@ button:hover {
 <h2>📋 Mis tareas</h2>
 
 <p>Progreso: {{ progress }}%</p>
+
 <div class="progress-bar">
     <div class="progress-fill" style="width: {{ progress }}%"></div>
 </div>
 
+<!-- FORM -->
 <form action="/add" method="POST">
 
     <input name="title" placeholder="Nueva tarea..." required>
 
+    <!-- CATEGORÍA -->
     <select name="category" required>
         <option value="">Categoría</option>
         {% for c in categories %}
@@ -151,6 +161,7 @@ button:hover {
         {% endfor %}
     </select>
 
+    <!-- PRIORIDAD -->
     <select name="priority" required>
         <option value="">Prioridad</option>
         <option value="urgente">🔴 Urgente</option>
@@ -162,11 +173,17 @@ button:hover {
     <button type="submit">➕</button>
 </form>
 
+<!-- TASKS -->
 {% if tasks %}
     {% for t in tasks %}
     <div class="card {{ t[4] }}">
+
         <div>
-            <div class="title">{{ t[2] }}</div>
+            <!-- 🔥 tachado automático -->
+            <div class="title {% if t[5]=='completada' %}completed{% endif %}">
+                {{ t[2] }}
+            </div>
+
             <div class="meta">
                 {{ t[3] }} · {{ t[4] }} · {{ t[5] }}
             </div>
@@ -176,6 +193,7 @@ button:hover {
             <a href="/complete/{{ t[0] }}">✔</a>
             <a href="/delete/{{ t[0] }}">🗑</a>
         </div>
+
     </div>
     {% endfor %}
 {% else %}
@@ -183,5 +201,6 @@ button:hover {
 {% endif %}
 
 </div>
+
 </body>
 </html>
