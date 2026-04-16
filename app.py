@@ -60,19 +60,14 @@ def home():
     tasks = get_tasks(user_id)
 
     # ✅ FIX categorías (evita errores)
-    categories = list(set([t[3] for t in tasks if t[3]]))
+    # categorías base SIEMPRE visibles
+default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
 
-    total = len(tasks)
-    completed = len([t for t in tasks if t[5] == "completada"])
+categories = default_categories.copy()
 
-    progress = int((completed / total) * 100) if total > 0 else 0
-
-    return render_template(
-        "index.html",
-        tasks=tasks,
-        categories=categories,
-        progress=progress
-    )
+for t in tasks:
+    if t[3] and t[3] not in categories:
+        categories.append(t[3])
 
 
 # ➕ ADD
