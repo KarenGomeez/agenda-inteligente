@@ -25,7 +25,7 @@ def home():
     tasks = get_tasks()
 
     # ✅ categorías dinámicas + default
-    categories = list(set([t[3] for t in tasks if t[3]]))
+    categories = list(set([t[4] for t in tasks if t[4]]))
     default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
     categories = list(set(categories + default_categories))
 
