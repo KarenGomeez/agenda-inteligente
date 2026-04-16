@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <title>Agenda Inteligente</title>
@@ -41,13 +40,6 @@ body {
 .main {
     flex: 1;
     padding: 30px;
-}
-
-/* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 /* PROGRESS */
@@ -117,20 +109,18 @@ button:hover {
     color: #94a3b8;
 }
 
-/* PRIORIDAD COLOR */
-.urgente { border-left: 4px solid #ef4444; }
-.alta { border-left: 4px solid #f59e0b; }
-.media { border-left: 4px solid #3b82f6; }
-.baja { border-left: 4px solid #22c55e; }
+/* PRIORIDAD */
+.urgente { border-left: 4px solid red; }
+.alta { border-left: 4px solid orange; }
+.media { border-left: 4px solid blue; }
+.baja { border-left: 4px solid green; }
 
-/* BOTONES */
 .actions a {
     margin-left: 10px;
     text-decoration: none;
     font-size: 18px;
 }
 </style>
-
 </head>
 
 <body>
@@ -138,23 +128,18 @@ button:hover {
 <div class="sidebar">
     <h3>🧠 Agenda</h3>
     <a href="/">🏠 Home</a>
-    <a href="/chart">📊 Dashboard</a>
     <a href="/logout">🚪 Logout</a>
 </div>
 
 <div class="main">
 
-<div class="header">
-    <h2>📋 Mis tareas</h2>
-</div>
+<h2>📋 Mis tareas</h2>
 
-<!-- PROGRESO -->
 <p>Progreso: {{ progress }}%</p>
 <div class="progress-bar">
     <div class="progress-fill" style="width: {{ progress }}%"></div>
 </div>
 
-<!-- FORM -->
 <form action="/add" method="POST">
 
     <input name="title" placeholder="Nueva tarea..." required>
@@ -166,7 +151,6 @@ button:hover {
         {% endfor %}
     </select>
 
-    <!-- PRIORIDAD -->
     <select name="priority" required>
         <option value="">Prioridad</option>
         <option value="urgente">🔴 Urgente</option>
@@ -178,24 +162,20 @@ button:hover {
     <button type="submit">➕</button>
 </form>
 
-<!-- TASKS -->
 {% if tasks %}
     {% for t in tasks %}
-    <div class="card {{ t[5] }}">
-
+    <div class="card {{ t[4] }}">
         <div>
-            <div class="title">{{ t[1] }}</div>
+            <div class="title">{{ t[2] }}</div>
             <div class="meta">
-                {{ t[3] }} · {{ t[5] }} · {{ t[7] }}
+                {{ t[3] }} · {{ t[4] }} · {{ t[5] }}
             </div>
         </div>
 
         <div class="actions">
             <a href="/complete/{{ t[0] }}">✔</a>
-            <a href="/edit/{{ t[0] }}">✏️</a>
             <a href="/delete/{{ t[0] }}">🗑</a>
         </div>
-
     </div>
     {% endfor %}
 {% else %}
@@ -203,6 +183,5 @@ button:hover {
 {% endif %}
 
 </div>
-
 </body>
 </html>
