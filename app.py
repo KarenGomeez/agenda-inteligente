@@ -1,205 +1,140 @@
 from flask import Flask, render_template, redirect, request
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 from database import (
     get_tasks,
     create_tables,
+    create_user_table,
     add_task,
     complete_task,
     delete_task,
-    auto_priority
+    auto_priority,
+    get_connection
 )
 
-import matplotlib.pyplot as plt
-import io
-import base64
+app = Flask(__name__)
+app.secret_key = "secreto"
 
-app = Flask(__name__, template_folder="templates")
-
+# 🔥 DB
 create_tables()
+create_user_table()
+
+# 🔐 LOGIN CONFIG
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
 
-# 🧠 HOME
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+# 🧠 HOME (SOLO USUARIO LOGUEADO)
 @app.route("/")
+@login_required
 def home():
-    tasks = get_tasks()
+    tasks = get_tasks(current_user.id)
 
-    # categorías dinámicas
-    categories_db = [t[3] for t in tasks if t[3]]
-    default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
-
-    categories = default_categories.copy()
-    for c in categories_db:
-        if c not in categories:
-            categories.append(c)
+    categories = list(set([t[4] for t in tasks if t[4]]))
 
     total = len(tasks)
-    completed = len([t for t in tasks if t[7] == "completada"])
-    pending = len([t for t in tasks if t[7] == "pendiente"])
-    urgent = len([t for t in tasks if t[5] == "urgente"])
+    completed = len([t for t in tasks if t[8] == "completada"])
 
     progress = int((completed / total) * 100) if total > 0 else 0
 
     return render_template(
         "index.html",
         tasks=tasks,
-        total=total,
-        completed=completed,
-        pending=pending,
-        urgent=urgent,
-        progress=progress,
-        categories=categories
+        categories=categories,
+        progress=progress
     )
 
 
 # ➕ AGREGAR
 @app.route("/add", methods=["POST"])
+@login_required
 def add():
     title = request.form["title"]
-    category = request.form["category"].strip().capitalize()
+    category = request.form["category"]
+    priority = request.form["priority"]
 
-    priority = request.form.get("priority")
-
-    if not priority or priority == "auto":
+    if not priority:
         priority = auto_priority(title, category)
 
-    add_task(title, "", category, "task", priority)
+    add_task(current_user.id, title, "", category, "task", priority)
     return redirect("/")
 
 
 # ✔ COMPLETAR
-@app.route("/complete/<int:task_id>")
-def complete(task_id):
-    complete_task(task_id)
+@app.route("/complete/<int:id>")
+@login_required
+def complete(id):
+    complete_task(id, current_user.id)
     return redirect("/")
 
 
 # 🗑 ELIMINAR
-@app.route("/delete/<int:task_id>")
-def delete(task_id):
-    delete_task(task_id)
+@app.route("/delete/<int:id>")
+@login_required
+def delete(id):
+    delete_task(id, current_user.id)
     return redirect("/")
 
 
-# ✏️ EDITAR
-@app.route("/edit/<int:task_id>", methods=["GET", "POST"])
-def edit(task_id):
-    tasks = get_tasks()
-    task = next((t for t in tasks if t[0] == task_id), None)
-
-    if not task:
-        return redirect("/")
-
+# 🔐 LOGIN
+@app.route("/login", methods=["GET", "POST"])
+def login():
     if request.method == "POST":
-        title = request.form["title"]
-        category = request.form["category"].strip().capitalize()
-        priority = request.form["priority"]
+        username = request.form["username"]
+        password = request.form["password"]
 
-        delete_task(task_id)
-        add_task(title, "", category, "task", priority)
+        conn = get_connection()
+        cursor = conn.cursor()
 
-        return redirect("/")
+        cursor.execute("SELECT id FROM users WHERE username=? AND password=?", (username, password))
+        user = cursor.fetchone()
 
-    return render_template("edit.html", task=task)
+        conn.close()
+
+        if user:
+            login_user(User(user[0]))
+            return redirect("/")
+
+    return render_template("login.html")
 
 
-# 📊 CHART
-@app.route("/chart")
-def chart():
-    tasks = get_tasks()
+# 📝 REGISTER
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-    completed = len([t for t in tasks if t[7] == "completada"])
-    pending = len([t for t in tasks if t[7] == "pendiente"])
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    labels = ["Completadas", "Pendientes"]
-    values = [completed, pending]
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        conn.commit()
+        conn.close()
 
-    plt.figure()
-    plt.bar(labels, values)
-    plt.title("Productividad")
+        return redirect("/login")
 
-    img = io.BytesIO()
-    plt.savefig(img, format="png")
-    img.seek(0)
+    return render_template("register.html")
 
-    graph_url = base64.b64encode(img.getvalue()).decode()
 
-    return f"""
-    <h2>📊 Dashboard</h2>
-    <img src="data:image/png;base64,{graph_url}">
-    <br><a href="/">Volver</a>
-    """
+# 🚪 LOGOUT
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/login")
 
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
-
-# ✔ COMPLETAR
-@app.route("/complete/<int:task_id>")
-def complete(task_id):
-    complete_task(task_id)
-    return redirect("/")
-
-
-# 🗑 ELIMINAR
-@app.route("/delete/<int:task_id>")
-def delete(task_id):
-    delete_task(task_id)
-    return redirect("/")
-
-
-# ✏️ EDITAR
-@app.route("/edit/<int:task_id>", methods=["GET", "POST"])
-def edit(task_id):
-    tasks = get_tasks()
-    task = next((t for t in tasks if t[0] == task_id), None)
-
-    if not task:
-        return redirect("/")
-
-    if request.method == "POST":
-        title = request.form["title"]
-        category = request.form["category"].strip().capitalize()
-        priority = request.form["priority"]
-
-        delete_task(task_id)
-        add_task(title, "", category, "task", priority)
-
-        return redirect("/")
-
-    return render_template("edit.html", task=task)
-
-
-# 📊 CHART
-@app.route("/chart")
-def chart():
-    tasks = get_tasks()
-
-    completed = len([t for t in tasks if t[7] == "completada"])
-    pending = len([t for t in tasks if t[7] == "pendiente"])
-
-    labels = ["Completadas", "Pendientes"]
-    values = [completed, pending]
-
-    plt.figure()
-    plt.bar(labels, values)
-    plt.title("Productividad")
-
-    img = io.BytesIO()
-    plt.savefig(img, format="png")
-    img.seek(0)
-
-    graph_url = base64.b64encode(img.getvalue()).decode()
-
-    return f"""
-    <h2>📊 Dashboard</h2>
-    <img src="data:image/png;base64,{graph_url}">
-    <br><a href="/">Volver</a>
-    """
-
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
