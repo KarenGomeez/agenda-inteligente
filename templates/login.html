@@ -2,6 +2,7 @@
 <html>
 <head>
 <style>
+<style>
 body {
     background: #0a0f1c;
     color: white;
@@ -11,23 +12,56 @@ body {
     align-items: center;
     height: 100vh;
 }
+
 .box {
     background: #111827;
     padding: 40px;
     border-radius: 15px;
-    width: 300px;
+    width: 320px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
 }
-input, button {
+
+h2 {
+    margin-bottom: 20px;
+}
+
+input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
-}
-button {
-    background: #3b82f6;
+    background: #1e293b;   /* 🔥 oscuro */
     color: white;
 }
+
+input::placeholder {
+    color: #94a3b8;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+a {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    color: #60a5fa;
+    text-decoration: none;
+}
+</style>
 </style>
 </head>
 <body>
