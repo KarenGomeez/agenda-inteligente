@@ -1,19 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-    <title>Registro</title>
+<meta charset="UTF-8">
+<title>Registro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: system-ui;
+    background: #0a0f1c;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* CARD */
+.register-box {
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 16px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* TITLE */
+h2 {
+    margin-bottom: 20px;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #111a2e;
+    color: white;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #22c55e;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #16a34a;
+}
+
+/* LINK */
+a {
+    color: #3b82f6;
+    text-decoration: none;
+    display: block;
+    margin-top: 15px;
+}
+</style>
+
 </head>
+
 <body>
 
-<h2>Registro</h2>
+<div class="register-box">
 
-<form method="POST">
-    <input name="username" placeholder="Usuario" required>
-    <input name="password" type="password" placeholder="Contraseña" required>
-    <button type="submit">Crear cuenta</button>
-</form>
+    <h2>🧠 Crear cuenta</h2>
 
-<a href="/login">Volver al login</a>
+    <form method="POST">
+        <input name="username" placeholder="Usuario" required>
+        <input name="password" type="password" placeholder="Contraseña" required>
+        <button type="submit">Registrarse</button>
+    </form>
+
+    <a href="/login">Volver al login</a>
+
+</div>
 
 </body>
 </html>
