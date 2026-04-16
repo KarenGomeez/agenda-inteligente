@@ -14,7 +14,7 @@ import base64
 
 app = Flask(__name__, template_folder="templates")
 
-# 🔥 IMPORTANTE
+# 🔥 Crear tablas siempre (Render)
 create_tables()
 
 
@@ -24,11 +24,19 @@ def home():
     filter_type = request.args.get("filter")
     tasks = get_tasks()
 
-    # ✅ categorías dinámicas + default
-    categories = list(set([t[4] for t in tasks if t[4]]))
-    default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
-    categories = list(set(categories + default_categories))
+    # 🔹 categorías desde DB
+    categories_db = [t[3] for t in tasks if t[3]]
 
+    # 🔹 categorías base
+    default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
+
+    # 🔹 unir sin duplicados y mantener orden
+    categories = default_categories.copy()
+    for c in categories_db:
+        if c not in categories:
+            categories.append(c)
+
+    # 🔹 métricas
     total = len(tasks)
     completed = len([t for t in tasks if t[7] == "completada"])
     pending = len([t for t in tasks if t[7] == "pendiente"])
@@ -38,7 +46,7 @@ def home():
     if total > 0:
         progress = int((completed / total) * 100)
 
-    # filtros
+    # 🔹 filtros
     if filter_type == "urgent":
         tasks = [t for t in tasks if t[5] == "urgente"]
     elif filter_type == "pending":
@@ -62,7 +70,9 @@ def home():
 @app.route("/add", methods=["POST"])
 def add():
     title = request.form["title"]
-    category = request.form["category"]
+
+    # 🔥 normalizar categoría
+    category = request.form["category"].strip().capitalize()
 
     priority = auto_priority(title, category)
 
@@ -95,7 +105,7 @@ def edit(task_id):
 
     if request.method == "POST":
         title = request.form["title"]
-        category = request.form["category"]
+        category = request.form["category"].strip().capitalize()
         priority = request.form["priority"]
 
         delete_task(task_id)
