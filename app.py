@@ -4,6 +4,7 @@ from database import *
 app = Flask(__name__)
 app.secret_key = "secret123"
 
+# 🔥 crear tablas
 create_tables()
 
 
@@ -58,10 +59,12 @@ def home():
     user_id = session["user_id"]
     tasks = get_tasks(user_id)
 
-    categories = list(set([t[3] for t in tasks]))
+    # ✅ FIX categorías (evita errores)
+    categories = list(set([t[3] for t in tasks if t[3]]))
 
     total = len(tasks)
     completed = len([t for t in tasks if t[5] == "completada"])
+
     progress = int((completed / total) * 100) if total > 0 else 0
 
     return render_template(
@@ -102,5 +105,6 @@ def delete(id):
     return redirect("/")
 
 
+# 🚀 START
 if __name__ == "__main__":
     app.run(debug=True)
