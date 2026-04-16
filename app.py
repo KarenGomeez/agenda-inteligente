@@ -14,7 +14,6 @@ import base64
 
 app = Flask(__name__, template_folder="templates")
 
-# 🔥 Crear tablas siempre (Render)
 create_tables()
 
 
@@ -24,33 +23,20 @@ def home():
     filter_type = request.args.get("filter")
     tasks = get_tasks()
 
-    # 🔹 categorías desde DB
     categories_db = [t[3] for t in tasks if t[3]]
-
-    # 🔹 categorías base
     default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
 
-    # 🔹 unir sin duplicados
     categories = default_categories.copy()
     for c in categories_db:
         if c not in categories:
             categories.append(c)
 
-    # 🔹 métricas
     total = len(tasks)
     completed = len([t for t in tasks if t[7] == "completada"])
     pending = len([t for t in tasks if t[7] == "pendiente"])
     urgent = len([t for t in tasks if t[5] == "urgente"])
 
     progress = int((completed / total) * 100) if total > 0 else 0
-
-    # 🔹 filtros
-    if filter_type == "urgent":
-        tasks = [t for t in tasks if t[5] == "urgente"]
-    elif filter_type == "pending":
-        tasks = [t for t in tasks if t[7] == "pendiente"]
-    elif filter_type == "completed":
-        tasks = [t for t in tasks if t[7] == "completada"]
 
     return render_template(
         "index.html",
@@ -64,18 +50,16 @@ def home():
     )
 
 
-# ➕ AGREGAR
+# ➕ AGREGAR (con prioridad manual o IA)
 @app.route("/add", methods=["POST"])
 def add():
     title = request.form["title"]
     category = request.form["category"].strip().capitalize()
 
-    # 👇 prioridad manual o automática
-    manual_priority = request.form.get("priority")
+    # 🔥 PRIORIDAD
+    priority = request.form.get("priority")
 
-    if manual_priority:
-        priority = manual_priority
-    else:
+    if not priority or priority == "auto":
         priority = auto_priority(title, category)
 
     add_task(title, "", category, "task", priority)
@@ -94,6 +78,28 @@ def complete(task_id):
 def delete(task_id):
     delete_task(task_id)
     return redirect("/")
+
+
+# ✏️ EDITAR
+@app.route("/edit/<int:task_id>", methods=["GET", "POST"])
+def edit(task_id):
+    tasks = get_tasks()
+    task = next((t for t in tasks if t[0] == task_id), None)
+
+    if not task:
+        return redirect("/")
+
+    if request.method == "POST":
+        title = request.form["title"]
+        category = request.form["category"].strip().capitalize()
+        priority = request.form["priority"]
+
+        delete_task(task_id)
+        add_task(title, "", category, "task", priority)
+
+        return redirect("/")
+
+    return render_template("edit.html", task=task)
 
 
 # 📊 CHART
@@ -124,7 +130,6 @@ def chart():
     """
 
 
-# 🚀 START
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
