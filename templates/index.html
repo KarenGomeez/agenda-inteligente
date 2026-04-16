@@ -221,7 +221,7 @@
     <div class="progress-box">
         <div>📊 Progreso: {{ progress }}%</div>
         <div class="progress-bar">
-          <div class="progress-fill" data-progress="{{ progress }}"></div>
+            <div class="progress-fill" data-progress="{{ progress }}"></div>
         </div>
     </div>
 
@@ -232,12 +232,22 @@
         <div class="box">🚨 {{ urgent }}</div>
     </div>
 
+    <!-- FORM -->
     <form action="/add" method="POST">
         <input name="title" placeholder="Nueva tarea..." required>
-        <input name="category" placeholder="Categoría">
+
+        <input name="category" list="categories" placeholder="Categoría">
+
+        <datalist id="categories">
+            {% for c in categories %}
+                <option value="{{ c }}"></option>
+            {% endfor %}
+        </datalist>
+
         <button type="submit">➕</button>
     </form>
 
+    <!-- TASKS -->
     {% if tasks %}
         {% for t in tasks %}
         <div class="card {{ t[5] }}">
@@ -284,7 +294,6 @@
 
 </body>
 </html>
-
 <div class="fab">+</div>
 
 </body>
