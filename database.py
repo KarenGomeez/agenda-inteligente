@@ -3,40 +3,33 @@ from datetime import datetime
 
 DB_NAME = "agenda.db"
 
-
 def get_connection():
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return sqlite3.connect(DB_NAME)
 
 
 def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # 👤 usuarios
+    # 👤 USERS
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
+        username TEXT UNIQUE,
+        password TEXT
     )
     """)
 
-    # 📋 tareas (ahora con user_id)
+    # 📋 TASKS (con user_id)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
-        title TEXT NOT NULL,
-        description TEXT,
+        title TEXT,
         category TEXT,
-        task_type TEXT,
         priority TEXT,
-        due_date TEXT,
         status TEXT,
-        created_at TEXT,
-        FOREIGN KEY(user_id) REFERENCES users(id)
+        created_at TEXT
     )
     """)
 
@@ -44,58 +37,37 @@ def create_tables():
     conn.close()
 
 
-# 👤 USER FUNCTIONS
-
+# 🔐 USERS
 def create_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
-    try:
-        cursor.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, password)
-        )
-        conn.commit()
-        return True
-    except:
-        return False
-    finally:
-        conn.close()
+    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+    conn.commit()
+    conn.close()
 
 
 def get_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT * FROM users WHERE username=? AND password=?",
-        (username, password)
-    )
-
+    cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
     user = cursor.fetchone()
     conn.close()
     return user
 
 
-# 📋 TASKS (FILTRADAS POR USER)
-
-def add_task(user_id, title, description="", category="general", task_type="task", priority="media", due_date=None):
+# 📋 TASKS
+def add_task(user_id, title, category, priority):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-    INSERT INTO tasks (
-        user_id, title, description, category, task_type,
-        priority, due_date, status, created_at
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO tasks (user_id, title, category, priority, status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)
     """, (
         user_id,
         title,
-        description,
         category,
-        task_type,
         priority,
-        due_date,
         "pendiente",
         datetime.now().isoformat()
     ))
@@ -108,20 +80,17 @@ def get_tasks(user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-    SELECT * FROM tasks
-    WHERE user_id = ?
-    ORDER BY id DESC
-    """, (user_id,))
+    cursor.execute("SELECT * FROM tasks WHERE user_id=?", (user_id,))
+    rows = cursor.fetchall()
 
-    tasks = cursor.fetchall()
     conn.close()
-    return tasks
+    return rows
 
 
 def complete_task(task_id):
     conn = get_connection()
     cursor = conn.cursor()
+
     cursor.execute("UPDATE tasks SET status='completada' WHERE id=?", (task_id,))
     conn.commit()
     conn.close()
@@ -130,6 +99,7 @@ def complete_task(task_id):
 def delete_task(task_id):
     conn = get_connection()
     cursor = conn.cursor()
+
     cursor.execute("DELETE FROM tasks WHERE id=?", (task_id,))
     conn.commit()
     conn.close()
