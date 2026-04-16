@@ -50,11 +50,6 @@ body {
     align-items: center;
 }
 
-.logout {
-    color: #f87171;
-    text-decoration: none;
-}
-
 /* PROGRESS */
 .progress-bar {
     width: 100%;
@@ -123,10 +118,10 @@ button:hover {
 }
 
 /* PRIORIDAD COLOR */
-.urgente { border-left: 4px solid red; }
-.alta { border-left: 4px solid orange; }
-.media { border-left: 4px solid blue; }
-.baja { border-left: 4px solid green; }
+.urgente { border-left: 4px solid #ef4444; }
+.alta { border-left: 4px solid #f59e0b; }
+.media { border-left: 4px solid #3b82f6; }
+.baja { border-left: 4px solid #22c55e; }
 
 /* BOTONES */
 .actions a {
@@ -153,7 +148,7 @@ button:hover {
     <h2>📋 Mis tareas</h2>
 </div>
 
-<!-- PROGRESS -->
+<!-- PROGRESO -->
 <p>Progreso: {{ progress }}%</p>
 <div class="progress-bar">
     <div class="progress-fill" style="width: {{ progress }}%"></div>
@@ -171,7 +166,7 @@ button:hover {
         {% endfor %}
     </select>
 
-    <!-- 🔥 NUEVO: PRIORIDAD -->
+    <!-- PRIORIDAD -->
     <select name="priority" required>
         <option value="">Prioridad</option>
         <option value="urgente">🔴 Urgente</option>
