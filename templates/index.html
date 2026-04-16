@@ -8,7 +8,7 @@
 <style>
 body {
     margin: 0;
-    font-family: system-ui, Arial;
+    font-family: system-ui;
     background: #0a0f1c;
     color: white;
     display: flex;
@@ -46,6 +46,7 @@ button {
     border: none;
     border-radius: 10px;
     color: white;
+    cursor: pointer;
 }
 
 .card {
@@ -61,22 +62,22 @@ button {
 
 <div class="sidebar">
     <h3>🧠 Agenda</h3>
-    <a href="/">Home</a><br>
-    <a href="/chart">Dashboard</a>
+    <a href="/">🏠 Home</a><br><br>
+    <a href="/chart">📊 Dashboard</a>
 </div>
 
 <div class="main">
 
 <h2>📋 Mis tareas</h2>
 
-<p>Progreso: {{ progress }}%</p>
+<p>📊 Progreso: {{ progress }}%</p>
 
 <!-- FORM -->
 <form action="/add" method="POST">
 
     <input name="title" placeholder="Nueva tarea..." required>
 
-    <!-- ✅ DROPDOWN REAL -->
+    <!-- 🔥 DROPDOWN REAL -->
     <select name="category" required>
         <option value="">Seleccionar categoría</option>
         {% for c in categories %}
@@ -88,17 +89,24 @@ button {
 </form>
 
 <!-- TASKS -->
-{% for t in tasks %}
-<div class="card">
-    <b>{{ t[1] }}</b><br>
-    {{ t[3] }} - {{ t[5] }} - {{ t[7] }}
+{% if tasks %}
+    {% for t in tasks %}
+    <div class="card">
+        <b>{{ t[1] }}</b><br>
 
-    <div>
-        <a href="/complete/{{ t[0] }}">✔</a>
-        <a href="/delete/{{ t[0] }}">🗑</a>
+        📂 {{ t[3] }} |
+        ⚡ {{ t[5] }} |
+        📌 {{ t[7] }}
+
+        <div>
+            <a href="/complete/{{ t[0] }}">✔</a>
+            <a href="/delete/{{ t[0] }}">🗑</a>
+        </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+{% else %}
+    <p>No hay tareas aún 🚀</p>
+{% endif %}
 
 </div>
 
