@@ -30,7 +30,7 @@ def home():
     # 🔹 categorías base
     default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
 
-    # 🔹 unir sin duplicados y mantener orden
+    # 🔹 unir sin duplicados
     categories = default_categories.copy()
     for c in categories_db:
         if c not in categories:
@@ -42,9 +42,7 @@ def home():
     pending = len([t for t in tasks if t[7] == "pendiente"])
     urgent = len([t for t in tasks if t[5] == "urgente"])
 
-    progress = 0
-    if total > 0:
-        progress = int((completed / total) * 100)
+    progress = int((completed / total) * 100) if total > 0 else 0
 
     # 🔹 filtros
     if filter_type == "urgent":
@@ -70,8 +68,6 @@ def home():
 @app.route("/add", methods=["POST"])
 def add():
     title = request.form["title"]
-
-    # 🔥 normalizar categoría
     category = request.form["category"].strip().capitalize()
 
     priority = auto_priority(title, category)
@@ -92,28 +88,6 @@ def complete(task_id):
 def delete(task_id):
     delete_task(task_id)
     return redirect("/")
-
-
-# ✏️ EDITAR
-@app.route("/edit/<int:task_id>", methods=["GET", "POST"])
-def edit(task_id):
-    tasks = get_tasks()
-    task = next((t for t in tasks if t[0] == task_id), None)
-
-    if task is None:
-        return redirect("/")
-
-    if request.method == "POST":
-        title = request.form["title"]
-        category = request.form["category"].strip().capitalize()
-        priority = request.form["priority"]
-
-        delete_task(task_id)
-        add_task(title, "", category, "task", priority)
-
-        return redirect("/")
-
-    return render_template("edit.html", task=task)
 
 
 # 📊 CHART
