@@ -3,11 +3,28 @@ from datetime import datetime
 
 DB_NAME = "agenda.db"
 
-
 def get_connection():
     return sqlite3.connect(DB_NAME)
 
 
+# 👤 USERS
+def create_user_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# 📋 TASKS (con user_id)
 def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
@@ -15,7 +32,8 @@ def create_tables():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
+        user_id INTEGER,
+        title TEXT,
         description TEXT,
         category TEXT,
         task_type TEXT,
@@ -30,23 +48,24 @@ def create_tables():
     conn.close()
 
 
-def add_task(title, description="", category="general", task_type="task", priority="media", due_date=None):
+def add_task(user_id, title, description="", category="general", task_type="task", priority="media"):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     INSERT INTO tasks (
-        title, description, category, task_type,
+        user_id, title, description, category, task_type,
         priority, due_date, status, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
+        user_id,
         title,
         description,
         category,
         task_type,
         priority,
-        due_date,
+        None,
         "pendiente",
         datetime.now().isoformat()
     ))
@@ -55,75 +74,54 @@ def add_task(title, description="", category="general", task_type="task", priori
     conn.close()
 
 
-def get_tasks():
+def get_tasks(user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     SELECT * FROM tasks
-    ORDER BY 
-        CASE status
-            WHEN 'pendiente' THEN 1
-            WHEN 'completada' THEN 2
-        END,
-        CASE priority
-            WHEN 'urgente' THEN 1
-            WHEN 'alta' THEN 2
-            WHEN 'media' THEN 3
-            WHEN 'baja' THEN 4
-        END,
-        id DESC
-    """)
+    WHERE user_id = ?
+    ORDER BY id DESC
+    """, (user_id,))
 
     rows = cursor.fetchall()
     conn.close()
     return rows
 
-def tasks_exist():
-    conn = get_connection()
-    cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM tasks")
-    count = cursor.fetchone()[0]
-
-    conn.close()
-    return count > 0
-
-def complete_task(task_id):
+def complete_task(task_id, user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     UPDATE tasks
     SET status = 'completada'
-    WHERE id = ?
-    """, (task_id,))
+    WHERE id = ? AND user_id = ?
+    """, (task_id, user_id))
 
     conn.commit()
     conn.close()
 
-def delete_task(task_id):
+
+def delete_task(task_id, user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     DELETE FROM tasks
-    WHERE id = ?
-    """, (task_id,))
+    WHERE id = ? AND user_id = ?
+    """, (task_id, user_id))
 
     conn.commit()
     conn.close()
 
+
 def auto_priority(title, category):
     text = (title + " " + category).lower()
 
-    if any(word in text for word in ["pagar", "factura", "deuda", "urgente", "hoy"]):
+    if "urgente" in text or "hoy" in text:
         return "urgente"
-
-    if any(word in text for word in ["estudiar", "curso", "examen", "python", "trabajo"]):
+    if "estudio" in text or "trabajo" in text:
         return "alta"
 
-    if any(word in text for word in ["idea", "proyecto", "app", "desarrollo"]):
-        return "media"
-
-    return "baja"
+    return "media"
