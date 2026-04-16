@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, session
 from database import *
 
 app = Flask(__name__)
-app.secret_key = "secreto123"
+app.secret_key = "secret123"
 
 create_tables()
 
@@ -11,30 +11,21 @@ create_tables()
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        user = get_user(username, password)
+        user = get_user(request.form["username"], request.form["password"])
 
         if user:
-            session["user_id"] = user["id"]
-            session["username"] = user["username"]
+            session["user_id"] = user[0]
             return redirect("/")
-
+    
     return render_template("login.html")
 
 
-# 📝 REGISTER REAL
+# 📝 REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        success = create_user(username, password)
-
-        if success:
-            return redirect("/login")
+        create_user(request.form["username"], request.form["password"])
+        return redirect("/login")
 
     return render_template("register.html")
 
@@ -55,12 +46,10 @@ def home():
     user_id = session["user_id"]
     tasks = get_tasks(user_id)
 
-    categories = list(set([t["category"] for t in tasks if t["category"]]))
+    categories = list(set([t[3] for t in tasks]))
 
     total = len(tasks)
-    completed = len([t for t in tasks if t["status"] == "completada"])
-    pending = len([t for t in tasks if t["status"] == "pendiente"])
-
+    completed = len([t for t in tasks if t[5] == "completada"])
     progress = int((completed / total) * 100) if total > 0 else 0
 
     return render_template(
@@ -74,13 +63,15 @@ def home():
 # ➕ ADD
 @app.route("/add", methods=["POST"])
 def add():
-    user_id = session["user_id"]
+    if "user_id" not in session:
+        return redirect("/login")
 
-    title = request.form["title"]
-    category = request.form["category"]
-    priority = request.form["priority"]
-
-    add_task(user_id, title, "", category, "task", priority)
+    add_task(
+        session["user_id"],
+        request.form["title"],
+        request.form["category"],
+        request.form["priority"]
+    )
 
     return redirect("/")
 
