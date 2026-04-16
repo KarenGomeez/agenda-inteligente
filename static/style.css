@@ -29,3 +29,20 @@ body {
 
 .green { background: green; }
 .red { background: red; }
+.urgente { border-left: 4px solid #ef4444; }
+.alta { border-left: 4px solid #f59e0b; }
+.media { border-left: 4px solid #3b82f6; }
+.baja { border-left: 4px solid #22c55e; }
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+}
