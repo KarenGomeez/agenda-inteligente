@@ -41,9 +41,18 @@ def create_tables():
 def create_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-    conn.commit()
+
+    try:
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, password)
+        )
+        conn.commit()
+    except:
+        return False  # usuario ya existe
+
     conn.close()
+    return True
 
 
 def get_user(username, password):
