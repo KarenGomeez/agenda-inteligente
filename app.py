@@ -14,6 +14,9 @@ import base64
 
 app = Flask(__name__, template_folder="templates")
 
+# 🔥 IMPORTANTE: crear tablas SIEMPRE (para Render)
+create_tables()
+
 
 # 🧠 HOME + DASHBOARD DATA
 @app.route("/")
@@ -125,6 +128,13 @@ def chart():
     <img src="data:image/png;base64,{graph_url}">
     <br><a href="/">Volver</a>
     """
+
+
+# 🚀 START (solo para local)
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 
 # 🚀 START (SOLO UNA VEZ)
