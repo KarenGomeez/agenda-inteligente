@@ -24,8 +24,15 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        create_user(request.form["username"], request.form["password"])
-        return redirect("/login")
+        ok = create_user(
+            request.form["username"],
+            request.form["password"]
+        )
+
+        if ok:
+            return redirect("/login")
+        else:
+            return "Usuario ya existe"
 
     return render_template("register.html")
 
