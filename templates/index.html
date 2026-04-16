@@ -2,299 +2,105 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Agenda Inteligente</title>
+<meta charset="UTF-8">
+<title>Agenda Inteligente</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: system-ui, Arial;
-            background: #0a0f1c;
-            color: white;
-            display: flex;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: system-ui, Arial;
+    background: #0a0f1c;
+    color: white;
+    display: flex;
+}
 
-        .sidebar {
-            width: 220px;
-            background: #0f172a;
-            height: 100vh;
-            padding: 20px;
-            border-right: 1px solid rgba(255,255,255,0.05);
-        }
+.sidebar {
+    width: 220px;
+    background: #0f172a;
+    height: 100vh;
+    padding: 20px;
+}
 
-        .logo {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+.main {
+    flex: 1;
+    padding: 30px;
+}
 
-        .menu a {
-            display: block;
-            padding: 10px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 6px;
-        }
+form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
 
-        .menu a:hover {
-            background: rgba(255,255,255,0.08);
-        }
+input, select {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #111a2e;
+    color: white;
+}
 
-        .main {
-            flex: 1;
-            padding: 30px;
-        }
+button {
+    padding: 12px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 10px;
+    color: white;
+}
 
-        .header {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .progress-box {
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 10px;
-            background: linear-gradient(90deg, #3b82f6, #22c55e);
-            transition: 0.6s;
-            width: 0%;
-        }
-
-        .stats {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
-
-        .box {
-            background: rgba(255,255,255,0.05);
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        input {
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: #111a2e;
-            color: white;
-            flex: 1;
-        }
-
-        button {
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: none;
-            background: #3b82f6;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2563eb;
-        }
-
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
-            backdrop-filter: blur(8px);
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            background: rgba(255,255,255,0.06);
-        }
-
-        .title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .meta {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 3px;
-        }
-
-        .completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        .badge {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 6px;
-            margin-right: 6px;
-        }
-
-        .pendiente {
-            background: #334155;
-        }
-
-        .completada {
-            background: #16a34a;
-        }
-
-        .actions a {
-            margin-left: 10px;
-            text-decoration: none;
-            font-size: 18px;
-            opacity: 0.6;
-        }
-
-        .actions a:hover {
-            opacity: 1;
-        }
-
-        .urgente { border-left: 4px solid #ef4444; }
-        .alta { border-left: 4px solid #f59e0b; }
-        .media { border-left: 4px solid #3b82f6; }
-        .baja { border-left: 4px solid #22c55e; }
-
-        .fab {
-            position: fixed;
-            right: 25px;
-            bottom: 25px;
-            background: #3b82f6;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-        }
-    </style>
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="sidebar">
-    <div class="logo">🧠 Agenda</div>
-
-    <div class="menu">
-        <a href="/">🏠 Home</a>
-        <a href="/?filter=urgent">🚨 Urgentes</a>
-        <a href="/?filter=pending">⏳ Pendientes</a>
-        <a href="/?filter=completed">✔ Completadas</a>
-        <a href="/chart">📊 Dashboard</a>
-    </div>
+    <h3>🧠 Agenda</h3>
+    <a href="/">Home</a><br>
+    <a href="/chart">Dashboard</a>
 </div>
 
 <div class="main">
 
-    <div class="header">📋 Mis tareas</div>
+<h2>📋 Mis tareas</h2>
 
-    <div class="progress-box">
-        <div>📊 Progreso: {{ progress }}%</div>
-        <div class="progress-bar">
-            <div class="progress-fill" data-progress="{{ progress }}"></div>
-        </div>
-    </div>
+<p>Progreso: {{ progress }}%</p>
 
-    <div class="stats">
-        <div class="box">📋 {{ total }}</div>
-        <div class="box">✔ {{ completed }}</div>
-        <div class="box">⏳ {{ pending }}</div>
-        <div class="box">🚨 {{ urgent }}</div>
-    </div>
+<!-- FORM -->
+<form action="/add" method="POST">
 
-    <!-- FORM -->
-    <form action="/add" method="POST">
-        <input name="title" placeholder="Nueva tarea..." required>
+    <input name="title" placeholder="Nueva tarea..." required>
 
-        <input name="category" list="categories" placeholder="Categoría">
-
-        <datalist id="categories">
-            {% for c in categories %}
-                <option value="{{ c }}"></option>
-            {% endfor %}
-        </datalist>
-
-        <button type="submit">➕</button>
-    </form>
-
-    <!-- TASKS -->
-    {% if tasks %}
-        {% for t in tasks %}
-        <div class="card {{ t[5] }}">
-
-            <div>
-                <div class="title {% if t[7]=='completada' %}completed{% endif %}">
-                    📌 {{ t[1] }}
-                    <span class="badge {{ t[7] }}">{{ t[7] }}</span>
-                </div>
-
-                <div class="meta">
-                    <span class="badge pendiente">{{ t[3] }}</span>
-                    <span class="badge">{{ t[5] }}</span>
-                </div>
-            </div>
-
-            <div class="actions">
-                <a href="/complete/{{ t[0] }}">✔</a>
-                <a href="/edit/{{ t[0] }}">✏️</a>
-                <a href="/delete/{{ t[0] }}">🗑</a>
-            </div>
-
-        </div>
+    <!-- ✅ DROPDOWN REAL -->
+    <select name="category" required>
+        <option value="">Seleccionar categoría</option>
+        {% for c in categories %}
+            <option value="{{ c }}">{{ c }}</option>
         {% endfor %}
-    {% else %}
-        <p style="opacity:0.6;">No hay tareas aún 🚀</p>
-    {% endif %}
+    </select>
+
+    <button type="submit">➕</button>
+</form>
+
+<!-- TASKS -->
+{% for t in tasks %}
+<div class="card">
+    <b>{{ t[1] }}</b><br>
+    {{ t[3] }} - {{ t[5] }} - {{ t[7] }}
+
+    <div>
+        <a href="/complete/{{ t[0] }}">✔</a>
+        <a href="/delete/{{ t[0] }}">🗑</a>
+    </div>
+</div>
+{% endfor %}
 
 </div>
-
-<div class="fab">+</div>
-
-<script>
-    // barra progreso
-    const bar = document.querySelector(".progress-fill");
-    const progress = bar.getAttribute("data-progress");
-    bar.style.width = progress + "%";
-
-    // botón flotante
-    document.querySelector(".fab").onclick = () => {
-        document.querySelector("input[name='title']").focus();
-    };
-</script>
-
-</body>
-</html>
-<div class="fab">+</div>
 
 </body>
 </html>
