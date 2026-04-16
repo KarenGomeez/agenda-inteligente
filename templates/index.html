@@ -14,7 +14,6 @@
             display: flex;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 220px;
             background: #0f172a;
@@ -42,20 +41,17 @@
             background: rgba(255,255,255,0.08);
         }
 
-        /* MAIN */
         .main {
             flex: 1;
             padding: 30px;
         }
 
-        /* HEADER */
         .header {
             font-size: 22px;
             font-weight: bold;
             margin-bottom: 20px;
         }
 
-        /* PROGRESS */
         .progress-box {
             margin-bottom: 20px;
         }
@@ -71,10 +67,10 @@
         .progress-fill {
             height: 10px;
             background: linear-gradient(90deg, #3b82f6, #22c55e);
-            transition: 0.4s;
+            transition: 0.6s;
+            width: 0%;
         }
 
-        /* STATS */
         .stats {
             display: flex;
             gap: 10px;
@@ -89,7 +85,6 @@
             font-size: 13px;
         }
 
-        /* FORM */
         form {
             display: flex;
             gap: 10px;
@@ -118,7 +113,6 @@
             background: #2563eb;
         }
 
-        /* CARDS */
         .card {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.06);
@@ -129,6 +123,7 @@
             justify-content: space-between;
             align-items: center;
             transition: 0.2s;
+            backdrop-filter: blur(8px);
         }
 
         .card:hover {
@@ -152,12 +147,11 @@
             opacity: 0.6;
         }
 
-        /* BADGE */
         .badge {
             font-size: 11px;
             padding: 3px 8px;
             border-radius: 6px;
-            margin-left: 8px;
+            margin-right: 6px;
         }
 
         .pendiente {
@@ -168,7 +162,6 @@
             background: #16a34a;
         }
 
-        /* ACTIONS */
         .actions a {
             margin-left: 10px;
             text-decoration: none;
@@ -180,13 +173,11 @@
             opacity: 1;
         }
 
-        /* PRIORIDAD */
         .urgente { border-left: 4px solid #ef4444; }
         .alta { border-left: 4px solid #f59e0b; }
         .media { border-left: 4px solid #3b82f6; }
         .baja { border-left: 4px solid #22c55e; }
 
-        /* FAB */
         .fab {
             position: fixed;
             right: 25px;
@@ -206,7 +197,6 @@
         .fab:hover {
             transform: scale(1.1);
         }
-
     </style>
 </head>
 
@@ -228,7 +218,6 @@
 
     <div class="header">📋 Mis tareas</div>
 
-    <!-- PROGRESS -->
     <div class="progress-box">
         <div>📊 Progreso: {{ progress }}%</div>
         <div class="progress-bar">
@@ -236,7 +225,6 @@
         </div>
     </div>
 
-    <!-- STATS -->
     <div class="stats">
         <div class="box">📋 {{ total }}</div>
         <div class="box">✔ {{ completed }}</div>
@@ -244,14 +232,12 @@
         <div class="box">🚨 {{ urgent }}</div>
     </div>
 
-    <!-- FORM -->
     <form action="/add" method="POST">
         <input name="title" placeholder="Nueva tarea..." required>
         <input name="category" placeholder="Categoría">
         <button type="submit">➕</button>
     </form>
 
-    <!-- TASKS -->
     {% if tasks %}
         {% for t in tasks %}
         <div class="card {{ t[5] }}">
@@ -263,7 +249,8 @@
                 </div>
 
                 <div class="meta">
-                    {{ t[3] }} · {{ t[5] }}
+                    <span class="badge pendiente">{{ t[3] }}</span>
+                    <span class="badge">{{ t[5] }}</span>
                 </div>
             </div>
 
@@ -280,6 +267,23 @@
     {% endif %}
 
 </div>
+
+<div class="fab">+</div>
+
+<script>
+    // barra progreso
+    const bar = document.querySelector(".progress-fill");
+    const progress = bar.getAttribute("data-progress");
+    bar.style.width = progress + "%";
+
+    // botón flotante
+    document.querySelector(".fab").onclick = () => {
+        document.querySelector("input[name='title']").focus();
+    };
+</script>
+
+</body>
+</html>
 
 <div class="fab">+</div>
 
