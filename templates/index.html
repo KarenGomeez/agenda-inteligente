@@ -24,9 +24,9 @@ body {
 
 .sidebar a {
     display: block;
-    margin-top: 10px;
-    color: #94a3b8;
+    color: #cbd5e1;
     text-decoration: none;
+    margin-bottom: 10px;
 }
 
 .sidebar a:hover {
@@ -54,21 +54,14 @@ input, select {
     color: white;
 }
 
-input {
-    flex: 1;
-}
-
+/* FIX visual select */
 select {
-    min-width: 180px;
-}
-
-input:focus, select:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #3b82f6;
+    appearance: none;
+    cursor: pointer;
 }
 
 button {
-    padding: 12px 16px;
+    padding: 12px;
     background: #3b82f6;
     border: none;
     border-radius: 10px;
@@ -86,24 +79,8 @@ button:hover {
     padding: 15px;
     border-radius: 12px;
     margin-bottom: 10px;
-    transition: 0.2s;
+    border-left: 4px solid #3b82f6;
 }
-
-.card:hover {
-    transform: translateY(-2px);
-    background: rgba(255,255,255,0.08);
-}
-
-/* BADGES */
-.badge {
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-right: 6px;
-}
-
-.pendiente { background: #334155; }
-.completada { background: #16a34a; }
 
 /* PRIORIDAD */
 .urgente { border-left: 4px solid #ef4444; }
@@ -111,26 +88,49 @@ button:hover {
 .media { border-left: 4px solid #3b82f6; }
 .baja { border-left: 4px solid #22c55e; }
 
+/* BADGES */
+.badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-left: 5px;
+}
+
+.pendiente { background: #334155; }
+.completada { background: #16a34a; }
+
+.actions a {
+    margin-right: 10px;
+    text-decoration: none;
+}
 </style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
     <h3>🧠 Agenda</h3>
     <a href="/">🏠 Home</a>
+    <a href="/?filter=urgent">🚨 Urgentes</a>
+    <a href="/?filter=pending">⏳ Pendientes</a>
+    <a href="/?filter=completed">✔ Completadas</a>
     <a href="/chart">📊 Dashboard</a>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
 <h2>📋 Mis tareas</h2>
 
 <p>📊 Progreso: {{ progress }}%</p>
 
+<!-- FORM -->
 <form action="/add" method="POST">
+
     <input name="title" placeholder="Nueva tarea..." required>
 
+    <!-- ✅ DROPDOWN REAL FUNCIONANDO -->
     <select name="category" required>
         <option value="">Seleccionar categoría</option>
         {% for c in categories %}
@@ -141,19 +141,30 @@ button:hover {
     <button type="submit">➕</button>
 </form>
 
+<!-- TASKS -->
 {% if tasks %}
     {% for t in tasks %}
     <div class="card {{ t[5] }}">
-        <b>{{ t[1] }}</b><br>
 
-        <span class="badge">{{ t[3] }}</span>
-        <span class="badge">{{ t[5] }}</span>
-        <span class="badge {{ t[7] }}">{{ t[7] }}</span>
+        <b>
+            {% if t[7] == "completada" %}
+                <s>{{ t[1] }}</s>
+            {% else %}
+                {{ t[1] }}
+            {% endif %}
+        </b>
 
-        <div style="margin-top:8px;">
+        <div>
+            📂 {{ t[3] }}
+            <span class="badge">{{ t[5] }}</span>
+            <span class="badge {{ t[7] }}">{{ t[7] }}</span>
+        </div>
+
+        <div class="actions">
             <a href="/complete/{{ t[0] }}">✔</a>
             <a href="/delete/{{ t[0] }}">🗑</a>
         </div>
+
     </div>
     {% endfor %}
 {% else %}
