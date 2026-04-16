@@ -70,7 +70,13 @@ def add():
     title = request.form["title"]
     category = request.form["category"].strip().capitalize()
 
-    priority = auto_priority(title, category)
+    # 👇 prioridad manual o automática
+    manual_priority = request.form.get("priority")
+
+    if manual_priority:
+        priority = manual_priority
+    else:
+        priority = auto_priority(title, category)
 
     add_task(title, "", category, "task", priority)
     return redirect("/")
