@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar tarea</title>
+</head>
+
+<body style="font-family:Arial;background:#0f172a;color:white;text-align:center;">
+
+<h1>✏️ Editar tarea</h1>
+
+<form method="POST" style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:auto;">
+
+    <input name="title" value="{{ task[1] }}" required>
+    <input name="category" value="{{ task[3] }}" required>
+
+    <select name="priority">
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+    </select>
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+</body>
+</html>
