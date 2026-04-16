@@ -14,18 +14,20 @@ import base64
 
 app = Flask(__name__, template_folder="templates")
 
-# 🔥 IMPORTANTE: crear tablas SIEMPRE (para Render)
+# 🔥 IMPORTANTE
 create_tables()
 
 
-# 🧠 HOME + DASHBOARD DATA
+# 🧠 HOME
 @app.route("/")
 def home():
     filter_type = request.args.get("filter")
     tasks = get_tasks()
 
-    # ✅ categorías dinámicas
+    # ✅ categorías dinámicas + default
     categories = list(set([t[3] for t in tasks if t[3]]))
+    default_categories = ["Trabajo", "Estudio", "Personal", "Finanzas"]
+    categories = list(set(categories + default_categories))
 
     total = len(tasks)
     completed = len([t for t in tasks if t[7] == "completada"])
@@ -36,12 +38,11 @@ def home():
     if total > 0:
         progress = int((completed / total) * 100)
 
+    # filtros
     if filter_type == "urgent":
         tasks = [t for t in tasks if t[5] == "urgente"]
-
     elif filter_type == "pending":
         tasks = [t for t in tasks if t[7] == "pendiente"]
-
     elif filter_type == "completed":
         tasks = [t for t in tasks if t[7] == "completada"]
 
@@ -53,11 +54,11 @@ def home():
         pending=pending,
         urgent=urgent,
         progress=progress,
-        categories=categories  # ✅ coma agregada
+        categories=categories
     )
 
 
-# ➕ AGREGAR (IA)
+# ➕ AGREGAR
 @app.route("/add", methods=["POST"])
 def add():
     title = request.form["title"]
@@ -66,7 +67,6 @@ def add():
     priority = auto_priority(title, category)
 
     add_task(title, "", category, "task", priority)
-
     return redirect("/")
 
 
